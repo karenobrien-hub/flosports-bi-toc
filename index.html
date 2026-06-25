@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>FloSports Domo BI — Table of Contents</title>
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Domo Inventory — BI Table of Contents</h1>
+    </div>
+    <div class="source-meta" id="sourceMeta"></div>
+  </header>
+
+  <main class="app-shell">
+    <!-- KPI strip -->
+    <section class="kpi-strip" id="kpiStrip"></section>
+
+    <!-- Health bar -->
+    <section class="panel" style="margin-bottom:14px;padding:12px 14px 10px;">
+      <div class="panel-title" style="margin-bottom:8px;">
+        <h2>Cleanup Queue</h2>
+        <span>First-pass action across all cards</span>
+      </div>
+      <div class="health-strip" id="healthStrip"></div>
+      <div id="healthLegend" style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;font-weight:750;margin-top:6px;"></div>
+    </section>
+
+    <section class="workspace">
+      <!-- TOC rail -->
+      <aside class="toc-rail">
+        <div class="rail-heading">
+          <span>New Domo TOC</span>
+          <strong id="areaCount"></strong>
+        </div>
+        <nav class="area-list" id="areaList"></nav>
+      </aside>
+
+      <section class="main-panel">
+        <div class="panel" style="padding:0;margin-bottom:12px;">
+          <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="newtoc">New Domo TOC</button>
+            <button class="tab-btn" data-tab="inventory">Card Inventory</button>
+            <button class="tab-btn" data-tab="review">For Review</button>
+          </nav>
+
+          <!-- Overview -->
+          <div class="tab-pane active" id="tab-overview" style="padding:14px;">
+            <div class="quick-win-grid" id="quickWins"></div>
+            <div style="margin-top:14px;">
+              <div class="insight-grid">
+                <article class="panel wide">
+                  <div class="panel-title"><h2>Active Pages by Size</h2><span>Cards with usage · noise excluded</span></div>
+                  <div class="bar-list" id="pageBars"></div>
+                </article>
+                <article class="panel">
+                  <div class="panel-title"><h2>Freshness</h2><span>Last modified</span></div>
+                  <div class="bucket-list" id="staleBuckets"></div>
+                </article>
+                <article class="panel">
+                  <div class="panel-title"><h2>Views (389 days)</h2><span>Active cards only</span></div>
+                  <div class="bucket-list" id="viewBuckets"></div>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <!-- New Domo TOC -->
+          <div class="tab-pane" id="tab-newtoc" style="padding:14px;">
+            <p style="font-size:13px;color:var(--muted);margin:0 0 14px;">
+              Proposed go-forward structure for New Domo. Only cards with usage in the 389-day activity window are included.
+              Click an area to expand its proposed metrics. These are a first pass — validate and adjust as needed.
+            </p>
+            <div id="tocAreaGrid"></div>
+          </div>
+
+          <!-- Card Inventory (TOC cards only) -->
+          <div class="tab-pane" id="tab-inventory" style="padding:14px;">
+            <div class="controls" style="grid-template-columns:minmax(200px,1fr) 170px 160px 160px;margin-bottom:10px;">
+              <label><span>Search</span>
+                <input id="searchInput" type="search" placeholder="Title, page, owner, dataset …"/>
+              </label>
+              <label><span>Area</span><select id="categoryFilter"></select></label>
+              <label><span>Action</span><select id="actionFilter"></select></label>
+              <label><span>Usage</span>
+                <select id="usageFilter">
+                  <option value="All">All</option>
+                  <option value="High">High (100+ views)</option>
+                  <option value="Medium">Medium (20–99)</option>
+                  <option value="Low">Low (1–19)</option>
+                </select>
+              </label>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:10px;">
+              <button type="button" id="clearFilters" class="ghost-button">Clear filters</button>
+            </div>
+            <section class="panel inventory-panel" style="margin-top:0;">
+              <div class="panel-title table-title">
+                <div><h2>Active Card Inventory</h2><span id="resultCount"></span></div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th>Card</th><th>Current Page</th><th>Area</th>
+                    <th>Action</th><th>Usage</th><th>Owner</th><th>Dataset</th><th>Modified</th><th>Flags</th>
+                  </tr></thead>
+                  <tbody id="inventoryRows"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <!-- For Review -->
+          <div class="tab-pane" id="tab-review" style="padding:14px;">
+            <p style="font-size:13px;color:var(--muted);margin:0 0 12px;">
+              Cards with <strong>zero views</strong> in the 389-day activity window, plus noise/orphan/shared pages.
+              These are retire or triage candidates — not part of the go-forward TOC.
+            </p>
+            <div class="controls" style="grid-template-columns:minmax(200px,1fr) 170px 160px;margin-bottom:10px;">
+              <label><span>Search</span>
+                <input id="reviewSearch" type="search" placeholder="Title, page, owner …"/>
+              </label>
+              <label><span>Area</span><select id="reviewCategoryFilter"></select></label>
+              <label><span>Flag</span>
+                <select id="reviewFlagFilter">
+                  <option value="All">All</option>
+                  <option value="Noise page">Noise page</option>
+                  <option value="Orphan/Shared">Orphan/Shared</option>
+                  <option value="2+ yrs stale">2+ yrs stale</option>
+                  <option value="Duplicate title">Duplicate title</option>
+                </select>
+              </label>
+            </div>
+            <section class="panel inventory-panel" style="margin-top:0;">
+              <div class="panel-title table-title">
+                <div><h2>For Review</h2><span id="reviewCount"></span></div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th>Card</th><th>Current Page</th><th>Area</th>
+                    <th>Owner</th><th>Dataset</th><th>Modified</th><th>Flags</th>
+                  </tr></thead>
+                  <tbody id="reviewRows"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="./app.js?v=4"></script>
+</body>
+</html>
